@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Fast Compute debug page</title>
+    <script src="../src/fast-compute.js"></script>
+</head>
+<body>
+    <script id="clProgramVectorAdd" type="text/x-opencl">
+        // TODO: uint* uiVectorWidth OR uint uiVectorWidth
+        kernel void ckVectorAdd(global uint* vectorIn1, global uint* vectorIn2, uint* uiVectorWidth, global uint* vectorOut) {
+            uint x = get_global_id(0);
+            if (x >= uiVectorWidth) {
+               return;
+            }
+            // add the vector elements
+            vectorOut[x] = vectorIn1[x] + vectorIn2[x];
+        }
+    </script>     
+    <script>
+        var kernelSource = document.getElementById('clProgramVectorAdd').text;
+        var fast = new Fast(kernelSource);
+        var id1 = fast.setArg('Uint32Array', [1, 2, 3, 4, 5]);
+        var id2 = fast.setArg('Uint32Array', [5, 4, 3, 2, 1]);
+        var id3 = fast.setArg('Uint32Array', [5, 5, 5, 5, 5]); // length. TODO: [5] && uint uiVectorWidth
+        var id4 = fast.setArg('Uint32Array', [0, 0, 0, 0, 0]); // out
+
+        console.log(fast.getArg(id1));
+        console.log(fast.getArg(id2));
+        console.log('Result:');
+        console.log(fast.compute(5));
+    </script>
+</body>
+</html>
