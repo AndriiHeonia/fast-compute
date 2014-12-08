@@ -37,7 +37,7 @@
     Fast.prototype = {
         // (String, Array) -> Number
         setArg: function(type, data) {
-            // TODO: parse callback code and automatically detect types
+            // TODO: parse callback code and automatically detect argument types
             var i = this.args.length,
                 arg = new Uint32Array(data); // TODO: fix hardcoded type
             
@@ -63,6 +63,7 @@
         // (Number) -> Array
         compute: function() {
             // output (must be last arg in kernel callback)
+            // TODO: parse callback code and automatically detect output type
             var i = this.args.length - 1,
                 resSize = this.args[i].length,
                 bufSize = resSize * 4,

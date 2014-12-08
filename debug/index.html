@@ -18,8 +18,8 @@
         var fast = new Fast(src);
         var id1 = fast.setArg('Uint32Array*', [1, 2, 3, 4, 5]);
         var id2 = fast.setArg('Uint32Array*', [5, 4, 3, 2, 1]);
-        var id3 = fast.setArg('Uint32Array',  [5]);
-        var id4 = fast.setArg('Uint32Array*', [0, 0, 0, 0, 0]); // out
+        var id3 = fast.setArg('Uint32Array',  [5]); // TODO: wrap to [] inside
+        var id4 = fast.setArg('Uint32Array*', [0, 0, 0, 0, 0]); // TODO: remove this confusing code
 
         console.log('Array1:', fast.getArg(id1));
         console.log('Array2:', fast.getArg(id2));
