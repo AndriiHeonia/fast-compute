@@ -14,8 +14,36 @@
         }
     }
 
-    function _isPointer(type) {
-        return type.indexOf('*') !== -1;
+    // (String) -> Array
+    function _getArgTypes(src) {
+        var cType2jsType = {
+                // cType:   [jsType, isPointer]
+                'ushort':   ['Uint16Array', false],
+                'short':    ['Int16Array', false],
+                'int':      ['Int32Array', false],
+                'uint':     ['Uint32Array', false],
+                'float':    ['Float32Array', false],
+                'double':   ['Float64Array', false],
+                'ushort*':  ['Uint16Array', true],
+                'short*':   ['Int16Array', true],
+                'int*':     ['Int32Array', true],
+                'uint*':    ['Uint32Array', true],
+                'float*':   ['Float32Array', true],
+                'double*':  ['Float64Array', true]
+            },
+            argTypes = /kernel.*\((.*)\)/.exec(src)[1].split(',');
+
+        argTypes = argTypes.map(function(arg) {
+            // TODO: support u?char\*?
+            var rexp = /(u?short\*?|u?int\*?|u?long\*?|float\*?|double\*?)/;
+            return rexp.exec(arg)[1];
+        });
+
+        argTypes = argTypes.map(function(cType) {
+            return cType2jsType[cType];
+        });
+
+        return argTypes;
     }
 
     function Fast(src) {
@@ -23,6 +51,7 @@
 
         _checkWebCl();
 
+        this.argTypes = _getArgTypes(src);
         this.args = [];
         this.ctx = env.webcl.createContext();
 
@@ -35,54 +64,42 @@
     }
 
     Fast.prototype = {
-        // (String, Array) -> Number
-        setArg: function(type, data) {
-            // TODO: parse callback code and automatically detect argument types
-            var i = this.args.length,
-                arg = new Uint32Array(data); // TODO: fix hardcoded type
-            
-            this.args.push(arg);
+        compute: function() {
+            var type, isPointer, data, typedArray, outTypedArray, outBuf;
 
-            if (_isPointer(type)) {
-                var bufSize = this.args[i].length * 4,
-                    argBuf = this.ctx.createBuffer(WebCL.MEM_READ_ONLY, bufSize);
-                this.kernel.setArg(i, argBuf);
-                this.cmdQueue.enqueueWriteBuffer(argBuf, false, 0, bufSize, this.args[i]);
-            } else {
-                this.kernel.setArg(i, this.args[i]);
+            // set arguments to the kernels
+            // last arg - output
+            for (var i = 0; i < arguments.length; i++) {
+                type = env[this.argTypes[i][0]];
+                isPointer = this.argTypes[i][1];
+                data = arguments[i];
+                typedArray = new type(data);
+
+                if (isPointer) {
+                    var memMode = i < arguments.length - 1 ? WebCL.MEM_READ_ONLY : WebCL.MEM_WRITE_ONLY,
+                        buf = this.ctx.createBuffer(memMode, typedArray.byteLength);
+                    this.kernel.setArg(i, buf);
+                    if (memMode === WebCL.MEM_READ_ONLY) {
+                        this.cmdQueue.enqueueWriteBuffer(buf, false, 0, typedArray.byteLength, typedArray);                        
+                    }
+                } else {
+                    this.kernel.setArg(i, typedArray);
+                }
             }
 
-            return i;
-        },
+            // execute
+            outBuf = buf;
+            outTypedArray = typedArray;
 
-        // (Number) -> Array
-        getArg: function(id) {
-            return Array.prototype.slice.call(this.args[id]);
-        },
-
-        // (Number) -> Array
-        compute: function() {
-            // output (must be last arg in kernel callback)
-            // TODO: parse callback code and automatically detect output type
-            var i = this.args.length - 1,
-                resSize = this.args[i].length,
-                bufSize = resSize * 4,
-                outBuf = this.ctx.createBuffer(WebCL.MEM_WRITE_ONLY, bufSize);
-            this.kernel.setArg(i, outBuf);
-
-            // Init ND-range. TODO: ???
             var localWS = [8];
-            var globalWS = [Math.ceil (resSize / localWS) * localWS];
-
-            // Execute (enqueue) kernel
+            var globalWS = [Math.ceil(outTypedArray.byteLength / localWS) * localWS];
             this.cmdQueue.enqueueNDRangeKernel(this.kernel, globalWS.length, null, globalWS, localWS);
 
-            // Read the result buffer from OpenCL device
-            var outBuffer = new Uint32Array(resSize);
-            this.cmdQueue.enqueueReadBuffer(outBuf, false, 0, bufSize, outBuffer);        
+            // read the result from OpenCL device to outTypedArray
+            this.cmdQueue.enqueueReadBuffer(outBuf, false, 0, outTypedArray.byteLength, outTypedArray);        
             this.cmdQueue.finish();
 
-            return Array.prototype.slice.call(outBuffer);
+            return Array.prototype.slice.call(outTypedArray);
         }
     }
 

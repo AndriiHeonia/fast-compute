@@ -16,14 +16,14 @@
     <script>
         var src = document.getElementById('callback').text;
         var fast = new Fast(src);
-        var id1 = fast.setArg('Uint32Array*', [1, 2, 3, 4, 5]);
-        var id2 = fast.setArg('Uint32Array*', [5, 4, 3, 2, 1]);
-        var id3 = fast.setArg('Uint32Array',  [5]); // TODO: wrap to [] inside
-        var id4 = fast.setArg('Uint32Array*', [0, 0, 0, 0, 0]); // TODO: remove this confusing code
-
-        console.log('Array1:', fast.getArg(id1));
-        console.log('Array2:', fast.getArg(id2));
-        console.log('Result:', fast.compute());
+        var arr1 = [1, 2, 3, 4, 5],
+            arr2 = [5, 4, 3, 2, 1],
+            sumOut = [0, 0, 0, 0, 0],
+            subOut = [],
+            len = [5];
+        var result = fast.compute(arr1, arr2, len, sumOut); // or sumOut = fast.sum(arr1, arr2, len);
+        console.log(result);
+        // fast.sub(arr1, arr2, len, subOut); // or subOut = fast.sub(arr1, arr2, len);
     </script>
 </body>
 </html>
