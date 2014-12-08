@@ -14,6 +14,10 @@
         }
     }
 
+    function _isPointer(type) {
+        return type.indexOf('*') !== -1;
+    }
+
     function Fast(src) {
         var program, device;
 
@@ -26,17 +30,29 @@
         device = this.ctx.getInfo(WebCL.CONTEXT_DEVICES)[0];
         program.build([device], '');
 
-        this.kernel = program.createKernel("ckVectorAdd");
+        this.kernel = program.createKernel("callback");
         this.cmdQueue = this.ctx.createCommandQueue(device);
     }
 
     Fast.prototype = {
         // (String, Array) -> Number
         setArg: function(type, data) {
-            var arg = new Uint32Array(data);
+            // TODO: parse callback code and automatically detect types
+            var i = this.args.length,
+                arg = new Uint32Array(data); // TODO: fix hardcoded type
+            
             this.args.push(arg);
 
-            return this.args.length - 1;
+            if (_isPointer(type)) {
+                var bufSize = this.args[i].length * 4,
+                    argBuf = this.ctx.createBuffer(WebCL.MEM_READ_ONLY, bufSize);
+                this.kernel.setArg(i, argBuf);
+                this.cmdQueue.enqueueWriteBuffer(argBuf, false, 0, bufSize, this.args[i]);
+            } else {
+                this.kernel.setArg(i, this.args[i]);
+            }
+
+            return i;
         },
 
         // (Number) -> Array
@@ -45,30 +61,23 @@
         },
 
         // (Number) -> Array
-        compute: function(resultSize) {
-            // input
-            for (var i = 0; i < this.args.length - 1; i++) {
-                var bufSize = this.args[i].length * 4,
-                    argBuf = this.ctx.createBuffer(WebCL.MEM_READ_ONLY, bufSize);
-                this.kernel.setArg(i, argBuf);
-                this.cmdQueue.enqueueWriteBuffer(argBuf, false, 0, bufSize, this.args[i]);
-            }
-
-            // output (must be last arg)
+        compute: function() {
+            // output (must be last arg in kernel callback)
             var i = this.args.length - 1,
-                bufSize = this.args[i].length * 4,
+                resSize = this.args[i].length,
+                bufSize = resSize * 4,
                 outBuf = this.ctx.createBuffer(WebCL.MEM_WRITE_ONLY, bufSize);
             this.kernel.setArg(i, outBuf);
 
             // Init ND-range. TODO: ???
             var localWS = [8];
-            var globalWS = [Math.ceil (resultSize / localWS) * localWS];
+            var globalWS = [Math.ceil (resSize / localWS) * localWS];
 
             // Execute (enqueue) kernel
             this.cmdQueue.enqueueNDRangeKernel(this.kernel, globalWS.length, null, globalWS, localWS);
 
             // Read the result buffer from OpenCL device
-            var outBuffer = new Uint32Array(resultSize);
+            var outBuffer = new Uint32Array(resSize);
             this.cmdQueue.enqueueReadBuffer(outBuf, false, 0, bufSize, outBuffer);        
             this.cmdQueue.finish();
 
