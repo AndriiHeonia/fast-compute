@@ -52,7 +52,6 @@
         _checkWebCl();
 
         this.argTypes = _getArgTypes(src);
-        this.args = [];
         this.ctx = env.webcl.createContext();
 
         program = this.ctx.createProgram(src);
@@ -67,8 +66,7 @@
         compute: function() {
             var type, isPointer, data, typedArray, outTypedArray, outBuf;
 
-            // set arguments to the kernels
-            // last arg - output
+            // set arguments to the kernels, last argument - output
             for (var i = 0; i < arguments.length; i++) {
                 type = env[this.argTypes[i][0]];
                 isPointer = this.argTypes[i][1];
@@ -93,6 +91,9 @@
 
             var localWS = [8];
             var globalWS = [Math.ceil(outTypedArray.byteLength / localWS) * localWS];
+            // null - number of dimensions,
+            // globalWS - the number of work-items in each dimension of the NDRange
+            // localWS - the number of work-items in each dimension of the workgroups
             this.cmdQueue.enqueueNDRangeKernel(this.kernel, globalWS.length, null, globalWS, localWS);
 
             // read the result from OpenCL device to outTypedArray

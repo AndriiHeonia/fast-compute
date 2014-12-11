@@ -16,14 +16,26 @@
     <script>
         var src = document.getElementById('callback').text;
         var fast = new Fast(src);
-        var arr1 = [1, 2, 3, 4, 5],
-            arr2 = [5, 4, 3, 2, 1],
-            sumOut = [0, 0, 0, 0, 0],
-            subOut = [],
-            len = [5];
-        var result = fast.compute(arr1, arr2, len, sumOut); // or sumOut = fast.sum(arr1, arr2, len);
-        console.log(result);
-        // fast.sub(arr1, arr2, len, subOut); // or subOut = fast.sub(arr1, arr2, len);
+        var arr1 = [],
+            arr2 = [],
+            sumOut = [],
+            len = [5000000];
+
+        for (var i = 0; i < len[0]; i++) {
+            arr1.push(i);
+            arr2.push(i);
+            sumOut.push(0);
+        }
+
+        console.time('loop.compute');
+        for (var i = 0; i < len[0]; i++) {
+            sumOut[i] = arr1[i] + arr2[i];
+        }
+        console.timeEnd('loop.compute');
+
+        console.time('fast.compute');
+        fast.compute(arr1, arr2, len, sumOut);
+        console.timeEnd('fast.compute');
     </script>
 </body>
 </html>
