@@ -14,7 +14,8 @@
         }
     </script>
     <script>
-        var len = 5000000,
+    window.onload = function() {
+        var len = 9000000,
             arr1 = new Uint32Array(len),
             arr2 = new Uint32Array(len),
             out = new Uint32Array(len);
@@ -25,18 +26,19 @@
         for (var i = 0; i < len; i++) {
             arr1[i] = Math.floor(Math.random() * 100);
             arr2[i] = Math.floor(Math.random() * 100);
-            out[i] = 0;
         }
-
-        console.time('js loop computing');
-        for (var i = 0; i < len; i++) {
-            out[i] = arr1[i] + arr2[i];
-        }
-        console.timeEnd('js loop computing');
 
         console.time('webcl computing');
         fast.compute(arr1, arr2, new Uint32Array([len]), out);
         console.timeEnd('webcl computing');
+
+        console.time('js loop computing');
+        var o = [];
+        for (var i = 0; i < len; i++) {
+            o[i] = arr1[i] + arr2[i];
+        }
+        console.timeEnd('js loop computing');
+    }
     </script>
 </body>
 </html>

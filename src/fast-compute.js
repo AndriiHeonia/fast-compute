@@ -64,7 +64,7 @@
 
     Fast.prototype = {
         compute: function() {
-            var isPointer, typedArray, globalWS;
+            var isPointer, memMode, buf, typedArray, globalWS;
 
             // set arguments to the kernels. Last argument - output
             for (var i = 0; i < arguments.length; i++) {
@@ -72,8 +72,8 @@
                 typedArray = arguments[i];
 
                 if (isPointer) {
-                    var memMode = i < arguments.length - 1 ? WebCL.MEM_READ_ONLY : WebCL.MEM_WRITE_ONLY,
-                        buf = this.ctx.createBuffer(memMode, typedArray.byteLength);
+                    memMode = i < arguments.length - 1 ? WebCL.MEM_READ_ONLY : WebCL.MEM_WRITE_ONLY;
+                    buf = this.ctx.createBuffer(memMode, typedArray.byteLength);
                     this.kernel.setArg(i, buf);
                     if (memMode === WebCL.MEM_READ_ONLY) {
                         this.cmdQueue.enqueueWriteBuffer(buf, false, 0, typedArray.byteLength, typedArray);                        
