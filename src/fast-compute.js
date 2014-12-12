@@ -15,7 +15,7 @@
     }
 
     // (String) -> Array
-    function _getArgTypes(src) {
+    function _argInfo(src) {
         var cType2jsType = {
                 // cType:   [jsType, isPointer]
                 'ushort':   ['Uint16Array', false],
@@ -51,27 +51,25 @@
 
         _checkWebCl();
 
-        this.argTypes = _getArgTypes(src);
+        this.argInfo = _argInfo(src);
         this.ctx = env.webcl.createContext();
 
-        program = this.ctx.createProgram(src);
-        device = this.ctx.getInfo(WebCL.CONTEXT_DEVICES)[0];
-        program.build([device], '');
+        this.program = this.ctx.createProgram(src);
+        this.device = this.ctx.getInfo(WebCL.CONTEXT_DEVICES)[0];
+        this.program.build([this.device], '');
 
-        this.kernel = program.createKernel("callback");
-        this.cmdQueue = this.ctx.createCommandQueue(device);
+        this.kernel = this.program.createKernel("callback");
+        this.cmdQueue = this.ctx.createCommandQueue(this.device);
     }
 
     Fast.prototype = {
         compute: function() {
-            var type, isPointer, data, typedArray, outTypedArray, outBuf;
+            var isPointer, typedArray, globalWS;
 
-            // set arguments to the kernels, last argument - output
+            // set arguments to the kernels. Last argument - output
             for (var i = 0; i < arguments.length; i++) {
-                type = env[this.argTypes[i][0]];
-                isPointer = this.argTypes[i][1];
-                data = arguments[i];
-                typedArray = new type(data);
+                isPointer = this.argInfo[i][1];
+                typedArray = arguments[i];
 
                 if (isPointer) {
                     var memMode = i < arguments.length - 1 ? WebCL.MEM_READ_ONLY : WebCL.MEM_WRITE_ONLY,
@@ -85,22 +83,15 @@
                 }
             }
 
-            // execute
-            outBuf = buf;
-            outTypedArray = typedArray;
+            // init ND-range & exec
+            globalWS = this.kernel.getWorkGroupInfo(this.device, WebCL.KERNEL_WORK_GROUP_SIZE);
+            this.cmdQueue.enqueueNDRangeKernel(this.kernel, 1, null, [globalWS], null);
 
-            var localWS = [8];
-            var globalWS = [Math.ceil(outTypedArray.byteLength / localWS) * localWS];
-            // null - number of dimensions,
-            // globalWS - the number of work-items in each dimension of the NDRange
-            // localWS - the number of work-items in each dimension of the workgroups
-            this.cmdQueue.enqueueNDRangeKernel(this.kernel, globalWS.length, null, globalWS, localWS);
-
-            // read the result from OpenCL device to outTypedArray
-            this.cmdQueue.enqueueReadBuffer(outBuf, false, 0, outTypedArray.byteLength, outTypedArray);        
+            // read result from OpenCL device to output typed array
+            this.cmdQueue.enqueueReadBuffer(buf, false, 0, typedArray.byteLength, typedArray);        
             this.cmdQueue.finish();
 
-            return Array.prototype.slice.call(outTypedArray);
+            return typedArray;
         }
     }
 

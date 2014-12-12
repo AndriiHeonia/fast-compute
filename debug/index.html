@@ -14,28 +14,29 @@
         }
     </script>
     <script>
+        var len = 5000000,
+            arr1 = new Uint32Array(len),
+            arr2 = new Uint32Array(len),
+            out = new Uint32Array(len);
+
         var src = document.getElementById('callback').text;
         var fast = new Fast(src);
-        var arr1 = [],
-            arr2 = [],
-            sumOut = [],
-            len = [5000000];
 
-        for (var i = 0; i < len[0]; i++) {
-            arr1.push(i);
-            arr2.push(i);
-            sumOut.push(0);
+        for (var i = 0; i < len; i++) {
+            arr1[i] = Math.floor(Math.random() * 100);
+            arr2[i] = Math.floor(Math.random() * 100);
+            out[i] = 0;
         }
 
-        console.time('loop.compute');
-        for (var i = 0; i < len[0]; i++) {
-            sumOut[i] = arr1[i] + arr2[i];
+        console.time('js loop computing');
+        for (var i = 0; i < len; i++) {
+            out[i] = arr1[i] + arr2[i];
         }
-        console.timeEnd('loop.compute');
+        console.timeEnd('js loop computing');
 
-        console.time('fast.compute');
-        fast.compute(arr1, arr2, len, sumOut);
-        console.timeEnd('fast.compute');
+        console.time('webcl computing');
+        fast.compute(arr1, arr2, new Uint32Array([len]), out);
+        console.timeEnd('webcl computing');
     </script>
 </body>
 </html>
