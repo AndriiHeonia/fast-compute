@@ -49,7 +49,7 @@ Init `Fast` instance and call the appropriate methods:
 * Implement WebGL fallback
 * What about usage on node.js?
 * Write build tasks and tests
-* Update API doc
+* Make readme more user-friendly
 * Try to use it in hull.js
 
 ## Changelog
