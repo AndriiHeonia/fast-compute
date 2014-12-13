@@ -1,4 +1,4 @@
-Fast-compute - high-level JavaScript library for the parallel heterogeneous computing (GPGPU).
+Fast-compute - high-level JavaScript library for the parallel heterogeneous computing (<a href="http://en.wikipedia.org/wiki/General-purpose_computing_on_graphics_processing_units" target="_blank">GPGPU</a>).
 
 ## Usage
 
@@ -47,7 +47,8 @@ Fast-compute - high-level JavaScript library for the parallel heterogeneous comp
     1.4. what about image type usage instead of buffers?
 2. Implement WebGL fallback
 3. Write build tasks and tests
-4. Try to use it in hull.js
+4. Update API doc
+5. Try to use it in hull.js
 
 ## Changelog
 ### 0.1.0 — 13.12.2014
