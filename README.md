@@ -47,7 +47,7 @@ Init `Fast` instance and call the appropriate methods:
     * how to compute 2 dimensional matrix
     * what about `Image` type usage instead of `Buffers`?
 * Implement WebGL fallback
-* What about node.js usage?
+* What about usage on node.js?
 * Write build tasks and tests
 * Update API doc
 * Try to use it in hull.js
