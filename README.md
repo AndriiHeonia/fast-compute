@@ -2,7 +2,7 @@ Fast-compute - high-level JavaScript library for the parallel heterogeneous comp
 
 ## Usage
 
-1. Declare kernels (callbacks)
+Declare kernels (callbacks):
 
     <script id="kernels" type="text/x-opencl">
         kernel void sum(global uint* arr1, global uint* arr2, uint len, global uint* out) {
@@ -17,7 +17,7 @@ Fast-compute - high-level JavaScript library for the parallel heterogeneous comp
         }
     </script>
 
-2. Init `Fast` instance and call the appropriate methods
+Init `Fast` instance and call the appropriate methods:
 
     var len = 5000000,
         arr1 = new Uint32Array(len),
