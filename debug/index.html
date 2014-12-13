@@ -25,12 +25,14 @@
             arr2 = new Uint32Array(len),
             sum = new Uint32Array(len),
             sub = new Int32Array(len);
-        var fast = new Fast(document.getElementById('callbacks').text);
 
+        // fill input arrays
         for (var i = 0; i < len; i++) {
             arr1[i] = i;
             arr2[i] = i*i;
         }
+
+        var fast = new Fast(document.getElementById('callbacks').text);
 
         fast.sum(arr1, arr2, new Uint32Array([len]), sum);
         console.log('sum:', sum);
