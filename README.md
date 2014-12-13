@@ -40,15 +40,16 @@ Init `Fast` instance and call the appropriate methods:
     console.log('sub:', sub);
 
 ## To-do
-1. Try to write more complex examples and ensure that it's possible:
-    1.1. global/local kernels arguments usage
-    1.2. when to use (or don't use) C pointers
-    1.3. how to compute 2 dimensional matrix
-    1.4. what about image type usage instead of buffers?
-2. Implement WebGL fallback
-3. Write build tasks and tests
-4. Update API doc
-5. Try to use it in hull.js
+
+* Try to write more complex examples and ensure that it's possible:
+    ** global/local kernels arguments usage
+    ** when to use (or don't use) C pointers
+    ** how to compute 2 dimensional matrix
+    ** what about image type usage instead of buffers?
+* Implement WebGL fallback
+* Write build tasks and tests
+* Update API doc
+* Try to use it in hull.js
 
 ## Changelog
 ### 0.1.0 — 13.12.2014
