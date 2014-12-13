@@ -45,7 +45,7 @@ Init `Fast` instance and call the appropriate methods:
     * global/local kernels arguments usage
     * when to use (or don't use) C pointers
     * how to compute 2 dimensional matrix
-    * what about image type usage instead of buffers?
+    * what about `Image` type usage instead of `Buffers`?
 * Implement WebGL fallback
 * Write build tasks and tests
 * Update API doc
