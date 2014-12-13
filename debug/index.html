@@ -6,7 +6,7 @@
     <script src="../src/fast-compute.js"></script>
 </head>
 <body>
-    <script id="callbacks" type="text/x-opencl">
+    <script id="kernels" type="text/x-opencl">
         kernel void sum(global uint* arr1, global uint* arr2, uint len, global uint* out) {
             uint i = get_global_id(0);
             if (i >= len) { return; }
@@ -32,7 +32,7 @@
             arr2[i] = i*i;
         }
 
-        var fast = new Fast(document.getElementById('callbacks').text);
+        var fast = new Fast(document.getElementById('kernels').text);
 
         fast.sum(arr1, arr2, new Uint32Array([len]), sum);
         console.log('sum:', sum);
