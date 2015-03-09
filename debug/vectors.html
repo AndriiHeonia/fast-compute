@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>fast-compute debug page</title>
+    <script src="../src/fast-compute.js"></script>
+</head>
+<body>
+    <script id="kernels" type="text/x-opencl">
+        kernel void sum(global uint* arr1, global uint* arr2, uint len, global uint* out) {
+            uint i = get_global_id(0);
+            if (i >= len) { return; }
+            out[i] = arr1[i] + arr2[i];
+        }
+        kernel void sub(global uint* arr1, global uint* arr2, uint len, global int* out) {
+            uint i = get_global_id(0);
+            if (i >= len) { return; }
+            out[i] = arr1[i] - arr2[i];
+        }
+    </script>
+    <script>
+    window.onload = function() {
+        var len = 5000000,
+            arr1 = new Uint32Array(len),
+            arr2 = new Uint32Array(len),
+            sum = new Uint32Array(len),
+            sub = new Int32Array(len);
+
+        // fill input arrays
+        for (var i = 0; i < len; i++) {
+            arr1[i] = i;
+            arr2[i] = i*i;
+        }
+
+        var fast = new Fast(document.getElementById('kernels').text);
+
+        fast.sum(arr1, arr2, new Uint32Array([len]), sum);
+        console.log('sum:', sum);
+
+        fast.sub(arr1, arr2, new Uint32Array([len]), sub);
+        console.log('sub:', sub);
+    }
+    </script>
+</body>
+</html>

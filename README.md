@@ -52,6 +52,15 @@ Init `Fast` instance and call the appropriate methods:
 * Make readme more user-friendly
 * Try to use it in hull.js
 
+## Related links
+
+* About WebCL support in FireFox: https://bugzilla.mozilla.org/show_bug.cgi?id=664147#c30
+* About RiverTrail: http://intellabs.github.io/RiverTrail/tutorial/
+
+## Dev status
+
+Development frozen, RiverTrail looks more promising.
+
 ## Changelog
 ### 0.1.0 — 13.12.2014
 First and very simple version
