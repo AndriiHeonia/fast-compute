@@ -1,4 +1,4 @@
-Fast-compute - high-level JavaScript library for the parallel heterogeneous computing (<a href="http://en.wikipedia.org/wiki/General-purpose_computing_on_graphics_processing_units" target="_blank">GPGPU</a>).
+Fast-compute is the high-level JavaScript library for the parallel heterogeneous computing (<a href="http://en.wikipedia.org/wiki/General-purpose_computing_on_graphics_processing_units" target="_blank">GPGPU</a>).
 
 ## Usage
 
@@ -59,7 +59,7 @@ Init `Fast` instance and call the appropriate methods:
 
 ## Dev status
 
-Development frozen, RiverTrail looks more promising.
+Development is frozen, RiverTrail looks more promising.
 
 ## Changelog
 ### 0.1.0 — 13.12.2014
